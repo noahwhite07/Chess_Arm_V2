@@ -1,36 +1,24 @@
-from logging.config import valid_ident
-from mimetypes import init
-from multiprocessing.sharedctypes import Value
-from operator import ge
 from tkinter import *
-from turtle import right, update
-from xmlrpc.client import Boolean
-import matplotlib as plt
 import cv2 as cv
-from matplotlib import scale
-from matplotlib.pyplot import grid
-from numpy import number, true_divide
-#from matplotlib.pyplot import grid 
 
 # Create the window with dimensions and a title
 window = Tk()
-window.geometry('300x200')
+window.geometry('800x300')
 window.resizable(False,False)
 window.title("GUI Test")
 
-
+# Split window into 4 equal rows
+window.rowconfigure(0, weight=1)
 window.rowconfigure(1, weight=1)
+window.rowconfigure(2, weight=1)
+window.rowconfigure(3, weight=1)
 
-# Column for checkbotton
-#window.columnconfigure(2, weight=1)
 
-# Column for labels
-window.columnconfigure(0, weight=1)
+#window.columnconfigure(0, weight=1)
 
-# Column for sliders
-#window.columnconfigure(1, weight=3)
 
-# Params
+
+# Blob detector params
 area = IntVar(value = 100)
 areaBool = BooleanVar(value = False)
 
@@ -43,6 +31,8 @@ convexivityBool = BooleanVar(value = False)
 inertia = DoubleVar(value =.5)
 inertiaBool = BooleanVar(value = False)
 
+
+# Update each param's value when its corresponding toggle/slider are updated by the user
 def onAreaChange(val): 
     area.set(val)
     print(f"area: {area.get()}")
@@ -66,26 +56,24 @@ def onInertChange(val):inertia.set(val)
 def onInertToggle():inertiaBool.set(not inertiaBool.get())
     
 
-
+# Create a new blob detector with given params
 def updateParams(val = -1):
-    print(f"area: {area.get()}")
-    print(f"circularity: {circularity.get()}")
-    print(val)
+    pass
     
-# Creates a frame with a label, checkbutton, and slider with specified control variables and command functions
-def newParamControlFrame(label, min, max, buttonFunc, sliderFunc, buttonVar, sliderVar):
+# Create a frame with a label, checkbutton, and slider with specified event-handler functions
+def newParamControlFrame(label, min, max, buttonFunc, sliderFunc):
     
     # Contianer for the label, toggle, and slider
     frame = Frame(master = window)
 
     # Add the given label to the left side of the frame
-    paramLabel = Label(master = frame, text = label)
+    paramLabel = Label(master = frame, text = label, width=10)
     paramLabel.pack(side=LEFT, padx= (5,10), pady=(17,0))
 
     # Create new checkbutton with given function and variable
     cb = Checkbutton(
         master = frame, 
-        #variable = buttonVar,
+        variable = BooleanVar(),
         command = buttonFunc
     )
 
@@ -100,26 +88,36 @@ def newParamControlFrame(label, min, max, buttonFunc, sliderFunc, buttonVar, sli
         to_= max,
         orient='horizontal',
         length = 200,
-        variable = sliderVar,
-        command = sliderFunc
+        #variable = sliderVar,
+        command = sliderFunc,
+        
     )
 
     # Add the slider to the right of the button
     paramSlider.pack(side=LEFT, padx= 10)
     return frame
 
-
+# Adds a control frame for each parameter to the window
 def buildControlPanel():
 
-    cf1 = newParamControlFrame("Test",0,100, onAreaToggle, onAreaChange, areaBool, area)
+    cf1 = newParamControlFrame("Area", 0, 1000, onAreaToggle, onAreaChange)
     cf1.grid(row=0)
 
-    # cf2 = newParamControlFrame("Test dsadsa",0,500, circularityBool, circularity)
-    # cf2.grid(row=1)
+    cf2 = newParamControlFrame("Circularity", 0, 100, onCircToggle, onCircChange)
+    cf2.grid(row=1)
+
+    cf3 = newParamControlFrame("Convexivity", 0, 100, onConvToggle, onConvChange)
+    cf3.grid(row=2)
+
+    cf4 = newParamControlFrame("Inertia", 0, 100, onInertToggle, onInertChange)
+    cf4.grid(row=3)
+
 
 
 #labels = ["Area", "Circularity", "Convexivity", "Inertia"]
 
-
+# Add all the frames to the window
 buildControlPanel()
+
+# Run the gui
 window.mainloop()
