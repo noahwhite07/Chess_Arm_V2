@@ -1,0 +1,22 @@
+{
+    "area": [
+        true,
+        0
+    ],
+    "circularity":[
+        true,
+        0
+    ],
+    "convexivity":[
+        true,
+        0
+    ],
+    "inertia":[
+        true,
+        0
+    ],
+    "colorBounds":[
+        [0,0,0],
+        [255, 255, 180]
+    ]
+}
