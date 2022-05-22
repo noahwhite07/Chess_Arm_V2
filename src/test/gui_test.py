@@ -1,9 +1,11 @@
 from tkinter import *
+from tkinter.colorchooser import askcolor
+
 import cv2 as cv
 import json
 import os
+import numpy as np
 
-from matplotlib import container
 
 # Create the window with dimensions and a title
 window = Tk()
@@ -35,6 +37,9 @@ convexivityBool = BooleanVar(value = False)
 
 inertia = DoubleVar(value =.5)
 inertiaBool = BooleanVar(value = False)
+
+hsv_low = [IntVar(value=0), IntVar(value=0), IntVar(value=0)]
+hsv_high = [IntVar(value=0), IntVar(value=0), IntVar(value=0)]
 
 
 # Generate path of params file (assumes params.json in same dir as script)
@@ -85,6 +90,10 @@ def save_params():
     params["inertia"][0] = inertiaBool.get()
     params["inertia"][1] = inertia.get()
 
+    params["colorBounds"] = [
+        getHSVBounds(0),
+        getHSVBounds(1)
+    ]
     # Overwrite the existing JSON file with modified data
     params_file.write(json.dumps(params))
 
@@ -99,7 +108,8 @@ def on_closing():
 
 
 # Update each param's value when its corresponding toggle/slider are updated by the user
-def onAreaChange(val): area.set(val)   
+def onAreaChange(val): area.set(val)
+  
 def onAreaToggle(): areaBool.set( areaBool.get())
 
 def onCircChange(val): circularity.set(val)
@@ -117,7 +127,42 @@ def updateParams(val = -1):
     # This function will eventually be necessary
     pass
 
-def newColorRangeFrame(label, boxFuncs = -1, boxVars = -1):
+# Set either the low or high hsv bounds
+def setHSVBounds(hi_lo, hsv):
+    if(hi_lo == 0):
+        for i, val in enumerate(hsv):
+            hsv_low[i].set(val)
+    else:
+        for i, val in enumerate(hsv):
+            hsv_high[i].set(val)
+
+# Returns the low or high hsv bounds a list
+def getHSVBounds(hi_lo):
+    if hi_lo == 0:
+        return [hsv_low[0].get(), hsv_low[1].get(), hsv_low[2].get()]
+    else: 
+        return [hsv_high[0].get(), hsv_high[1].get(), hsv_high[2].get()]
+
+
+# Displays color chooser widget on hsv bound button press
+def changeColor(event, button, hi_lo):
+    colors = askcolor(title = "Choose Color for Bound")
+    print(colors)
+    button.configure(bg= colors[1])
+    rgb = np.uint8([[np.asarray(colors[0])]])
+ 
+    hsv = cv.cvtColor(rgb, cv.COLOR_RGB2HSV)[0][0]
+
+
+    setHSVBounds(hi_lo, hsv)
+    
+            
+    print(f"HSV low bound: {getHSVBounds(0)}")
+    print(f"HSV high bound: {getHSVBounds(1)}")
+    
+
+
+def newColorRangeFrame(label, hi_lo, boxFuncs = -1, boxVars = -1):
     frame = Frame(master=window)
 
     # Add the given label to the left side of the frame
@@ -127,7 +172,11 @@ def newColorRangeFrame(label, boxFuncs = -1, boxVars = -1):
     # A comma label to seperate the boxes
     commaLabel = Label(master=frame, text=",")
 
-    button = Button(master=frame, )
+    button = Button(
+        master=frame
+        )
+    button.pack(side=LEFT, padx= (5,10))
+    button.bind("<ButtonRelease-1>", func= lambda event, b = button: changeColor(event, b, hi_lo))
     # Create spinbox for each arg of HSV 
     hue = Spinbox(
         master=frame, 
@@ -154,7 +203,8 @@ def newColorRangeFrame(label, boxFuncs = -1, boxVars = -1):
     
     
     return frame
-    
+
+
 # Create a frame with a label, checkbutton, and slider with specified event-handler functions
 def newParamControlFrame(label, min, max, buttonFunc, sliderFunc, buttonVar, sliderVar):
     
@@ -186,6 +236,9 @@ def newParamControlFrame(label, min, max, buttonFunc, sliderFunc, buttonVar, sli
         command = sliderFunc,
         
     )
+    #paramSlider.bind(sequence="<ButtonRelease-1>", func = sliderFunc)
+    
+
 
     # Add the slider to the right of the button
     paramSlider.pack(side=LEFT, padx= 10)
@@ -206,11 +259,11 @@ def buildControlPanel():
     cf4 = newParamControlFrame("Inertia", 0, 100, onInertToggle, onInertChange, inertiaBool, inertia)
     cf4.grid(column=0, row=3, sticky= "W")
 
-    colorFrame = newColorRangeFrame("HSV Low Bound")
-    colorFrame.grid(column= 0, row=4, sticky= "W")
+    colorFrame1 = newColorRangeFrame("HSV Low Bound", hi_lo=0)
+    colorFrame1.grid(column= 0, row=4, sticky= "W")
 
-    colorFrame = newColorRangeFrame("HSV High Bound")
-    colorFrame.grid(column= 0, row=5, sticky= "W")
+    colorFrame2 = newColorRangeFrame("HSV High Bound", hi_lo=1)
+    colorFrame2.grid(column= 0, row=5, sticky= "W")
 
 # Add all the frames to the window
 buildControlPanel()
