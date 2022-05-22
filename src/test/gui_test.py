@@ -3,9 +3,11 @@ import cv2 as cv
 import json
 import os
 
+from matplotlib import container
+
 # Create the window with dimensions and a title
 window = Tk()
-window.geometry('800x300')
+window.geometry('800x400')
 window.resizable(False,False)
 window.title("GUI Test")
 
@@ -14,6 +16,12 @@ window.rowconfigure(0, weight=1)
 window.rowconfigure(1, weight=1)
 window.rowconfigure(2, weight=1)
 window.rowconfigure(3, weight=1)
+window.rowconfigure(4, weight=1)
+window.rowconfigure(5, weight=1)
+window.rowconfigure(6, weight=1)
+
+window.columnconfigure(0, weight=3)
+window.columnconfigure(1, weight=2)
 
 # Blob detector params
 area = IntVar(value = 50)
@@ -108,6 +116,44 @@ def onInertToggle():inertiaBool.set(inertiaBool.get())
 def updateParams(val = -1):
     # This function will eventually be necessary
     pass
+
+def newColorRangeFrame(label, boxFuncs = -1, boxVars = -1):
+    frame = Frame(master=window)
+
+    # Add the given label to the left side of the frame
+    boxLabel = Label(master=frame, text=label, width= 15)
+    boxLabel.pack(side=LEFT, padx= (5,10))
+
+    # A comma label to seperate the boxes
+    commaLabel = Label(master=frame, text=",")
+
+    button = Button(master=frame, )
+    # Create spinbox for each arg of HSV 
+    hue = Spinbox(
+        master=frame, 
+        to=179, 
+        from_=0, 
+        width = 5
+        )
+    sat = Spinbox(
+        master=frame, 
+        to=255, 
+        from_=0, 
+        width = 5
+        )
+    val = Spinbox(
+        master=frame, 
+        to=255, 
+        from_=0, 
+        width = 5
+        )
+
+    hue.pack(side=LEFT, padx= (5,27))
+    sat.pack(side=LEFT, padx= (5,27))
+    val.pack(side=LEFT, padx= (5,27))
+    
+    
+    return frame
     
 # Create a frame with a label, checkbutton, and slider with specified event-handler functions
 def newParamControlFrame(label, min, max, buttonFunc, sliderFunc, buttonVar, sliderVar):
@@ -149,19 +195,28 @@ def newParamControlFrame(label, min, max, buttonFunc, sliderFunc, buttonVar, sli
 def buildControlPanel():
 
     cf1 = newParamControlFrame("Area", 0, 1000, onAreaToggle, onAreaChange, areaBool, area)
-    cf1.grid(row=0)
+    cf1.grid(column=0, row=0, sticky= "W")
 
     cf2 = newParamControlFrame("Circularity", 0, 100, onCircToggle, onCircChange, circularityBool, circularity)
-    cf2.grid(row=1)
+    cf2.grid(column=0,row=1, sticky= "W")
 
     cf3 = newParamControlFrame("Convexivity", 0, 100, onConvToggle, onConvChange, convexivityBool, convexivity)
-    cf3.grid(row=2)
+    cf3.grid(column=0,row=2, sticky= "W")
 
     cf4 = newParamControlFrame("Inertia", 0, 100, onInertToggle, onInertChange, inertiaBool, inertia)
-    cf4.grid(row=3)
+    cf4.grid(column=0, row=3, sticky= "W")
+
+    colorFrame = newColorRangeFrame("HSV Low Bound")
+    colorFrame.grid(column= 0, row=4, sticky= "W")
+
+    colorFrame = newColorRangeFrame("HSV High Bound")
+    colorFrame.grid(column= 0, row=5, sticky= "W")
 
 # Add all the frames to the window
 buildControlPanel()
+
+
+#sb.grid(column=0, row = 4)
 
 # Set the current params to be saved on window close
 window.protocol("WM_DELETE_WINDOW", on_closing)
