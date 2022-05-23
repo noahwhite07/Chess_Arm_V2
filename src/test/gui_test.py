@@ -41,6 +41,14 @@ inertiaBool = BooleanVar(value = False)
 hsv_low = [IntVar(value=0), IntVar(value=0), IntVar(value=0)]
 hsv_high = [IntVar(value=0), IntVar(value=0), IntVar(value=0)]
 
+# Set either the low or high hsv bounds
+def setHSVBounds(hi_lo, hsv):
+    if(hi_lo == 0):
+        for i, val in enumerate(hsv):
+            hsv_low[i].set(val)
+    else:
+        for i, val in enumerate(hsv):
+            hsv_high[i].set(val)
 
 # Generate path of params file (assumes params.json in same dir as script)
 path = os.path.dirname(__file__) + "/params.json"
@@ -50,7 +58,6 @@ params_file = open(path, mode= "r")
 
 # Convert JSON to dictionary
 params = json.load(params_file)
-
 
 def load_params():
     
@@ -65,6 +72,9 @@ def load_params():
 
     inertiaBool.set(params["inertia"][0])
     inertia.set(params["inertia"][1])
+
+    setHSVBounds(0, params["colorBounds"][0])
+    setHSVBounds(1, params["colorBounds"][1])
 
     # Close the file
     params_file.close()
@@ -127,14 +137,15 @@ def updateParams(val = -1):
     # This function will eventually be necessary
     pass
 
-# Set either the low or high hsv bounds
-def setHSVBounds(hi_lo, hsv):
-    if(hi_lo == 0):
-        for i, val in enumerate(hsv):
-            hsv_low[i].set(val)
+def onColorRangeChange(event, widget, hi_low, param):
+    value = widget.get()
+    #print(f"param: {dict[param]} new val: {widget.get()} hi_lo: {hi_low}")
+    if hi_low == 0:
+        hsv_low[param].set(value)
     else:
-        for i, val in enumerate(hsv):
-            hsv_high[i].set(val)
+        hsv_high[param].set(value)
+
+
 
 # Returns the low or high hsv bounds a list
 def getHSVBounds(hi_lo):
@@ -147,24 +158,21 @@ def getHSVBounds(hi_lo):
 # Displays color chooser widget on hsv bound button press
 def changeColor(event, button, hi_lo):
     colors = askcolor(title = "Choose Color for Bound")
-    print(colors)
     button.configure(bg= colors[1])
     rgb = np.uint8([[np.asarray(colors[0])]])
  
     hsv = cv.cvtColor(rgb, cv.COLOR_RGB2HSV)[0][0]
 
-
-    setHSVBounds(hi_lo, hsv)
-    
+    setHSVBounds(hi_lo, hsv)  
             
-    print(f"HSV low bound: {getHSVBounds(0)}")
-    print(f"HSV high bound: {getHSVBounds(1)}")
+    # print(f"HSV low bound: {getHSVBounds(0)}")
+    # print(f"HSV high bound: {getHSVBounds(1)}")
     
 
 
 def newColorRangeFrame(label, hi_lo, boxFuncs = -1, boxVars = -1):
     frame = Frame(master=window)
-
+    
     # Add the given label to the left side of the frame
     boxLabel = Label(master=frame, text=label, width= 15)
     boxLabel.pack(side=LEFT, padx= (5,10))
@@ -172,34 +180,60 @@ def newColorRangeFrame(label, hi_lo, boxFuncs = -1, boxVars = -1):
     # A comma label to seperate the boxes
     commaLabel = Label(master=frame, text=",")
 
+    # A button to select the color with gui 
     button = Button(
-        master=frame
+        master=frame,
+        width = 3
         )
-    button.pack(side=LEFT, padx= (5,10))
+    
+
+    # Clicking button calls the function which prompts user with color picker gui
     button.bind("<ButtonRelease-1>", func= lambda event, b = button: changeColor(event, b, hi_lo))
     # Create spinbox for each arg of HSV 
     hue = Spinbox(
         master=frame, 
         to=179, 
         from_=0, 
-        width = 5
-        )
+        width = 4,
+        
+        )       
     sat = Spinbox(
         master=frame, 
         to=255, 
         from_=0, 
-        width = 5
+        width = 4
         )
     val = Spinbox(
         master=frame, 
         to=255, 
         from_=0, 
-        width = 5
+        width = 4
         )
+    
+    # Bind each text box to the function which updates the HSV bounds
+    hue.bind("<FocusOut>", func= lambda event, w=hue: onColorRangeChange(event, w, hi_lo, 0))
+    sat.bind("<FocusOut>", func= lambda event, w=sat: onColorRangeChange(event, w, hi_lo, 1))
+    val.bind("<FocusOut>", func= lambda event, w=val: onColorRangeChange(event, w, hi_lo, 2))
 
-    hue.pack(side=LEFT, padx= (5,27))
-    sat.pack(side=LEFT, padx= (5,27))
-    val.pack(side=LEFT, padx= (5,27))
+
+    # Set text in box fields to be current value of hsv vars
+    if hi_lo == 0:
+        hue.configure(textvariable= hsv_low[0])  
+        sat.configure(textvariable= hsv_low[1])    
+        val.configure(textvariable= hsv_low[2])    
+
+    else:
+        hue.configure(textvariable= hsv_high[0])
+        sat.configure(textvariable= hsv_high[1])
+        val.configure(textvariable= hsv_high[2])
+
+    # Add each box to the left of the frame in order of h,s,v
+    hue.pack(side=LEFT, padx= (5,12))
+    sat.pack(side=LEFT, padx= (5,12))
+    val.pack(side=LEFT, padx= (5,11))
+
+    # Add the color selection button to the right of the hsv boxes
+    button.pack(side=LEFT, padx= (5,10))
     
     
     return frame
