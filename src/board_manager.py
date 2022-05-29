@@ -1,9 +1,11 @@
 import time
-import computer_vision as CV
+from computer_vision import ComputerVision
 
 class BoardManager:
   def __init__(self):
-    state = CV.getOccupiedPoints()
+    self.cv     = ComputerVision()
+    self.cv.initialize()
+    state       = self.cv.getOccupiedPoints()
     self.states = [state, state]
     self.states = [['a2','a3','c3'], ['a2','a3','b4']]
 
