@@ -21,4 +21,15 @@ class ParamManager:
         """
         return self.switcher.next_detector(info)
 
+    def save(self):
+        """
+        Iterate to next set of parameters from switcher (in place)
+        then return them
+
+        Arguments:
+            info -- error information from blob detection to better compute
+                    next set of parameters (unused for now). schema TBD
+        """
+        self.switcher.save()
+
     # Need to fit in API here
