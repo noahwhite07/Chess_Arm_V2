@@ -1,60 +1,83 @@
 import cv2 as cv
+import cv2.SimpleBlobDetector_create as
 import numpy as np
 
 #incredibly lazy global variable for testing
-keyPointsList = []
+from 'param_manager/param_manager' import ParamManager
 
 class ComputerVision:
     def __init__(self):
-        self.params   = defaultBlobParameters()
-        self.bounds   = defaultColorBounds()
-        self.detector = cv.SimpleBlobDetector_create(self.params)
+        # Dictionary holding current detectors and parameter managers
+        colors = ["pink", "white"]
+        self.colors = { c : constructor(c) for c in colors }
 
-    def initialize(self):
-        pass
+    def next(self, color):
+        """
+        Iterate to next set of parameters and create new detector
 
-    def getBlobPoints(self, img, color):
+        Arguments:
+            color -- color to iterate the parameter manager for
+                     "pink" or "white"
+        """
+        c = self.colors[color]
+        c.detector = cv.SimpleBlobDetector_create(c.manager.next())
+
+    def save(self, color):
+        """
+        Save the current set of parameters as working
+
+        Arguments:
+            color -- color to save the parameters for
+                     "pink" or "white"
+        """
+        self.colors[color].manager.save()
+
+    def get_blob_points(self, img, color):
+        manager = self.colors[color].manager
+        bounds  = manager.bounds()
+
         boardHSV = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 
-        # holds mask for color in ROYGBIV format
-        colorMask = cv.inRange(boardHSV, self.bounds[color][0], self.bounds[color][1])
+        # Holds mask for color in ROYGBIV format
+        colorMask = cv.inRange(boardHSV, bounds[0], bounds[1])
 
-        # holds the image with the color mask applied
+        # Holds the image with the color mask applied
         maskedImage = cv.bitwise_and(img, img, mask = colorMask)
 
-        # converts masked image to greyscale
+        # Converts masked image to greyscale
         gray = cv.cvtColor(maskedImage, cv.COLOR_BGR2GRAY)
 
-        # does an inversed binary threshold of the greyscale masked image
-        # threshold is inverted because blob detector works best on black blobs on white
+        # Does an inversed binary threshold of the greyscale masked image
+        # Threshold is inverted because blob detector works best on black blobs on white
         threshold, blobImage = cv.threshold(gray, 55, 255, cv.THRESH_BINARY_INV)
 
         # A list to hold the key points given by detector.detect()
-        keyPoints = self.detector.detect(blobImage)
+        keyPoints = self.colors[color].detector.detect(blobImage)
 
         points = [[kp.pt[0], kp.pt[1]] for kp in keyPoints]
 
         return points
 
-        # stores image of the board with the blobs of the color highlighted
+        # Stores image of the board with the blobs of the color highlighted
         # board = cv.drawKeypoints(img, keyPoints, np.array([]), (0,255,0), cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+
         # show(board)
 
+    def get_occupied_squares(self):
+        """
+        Get next set of parameters from switcher
+        """
+        print("NOT IMPLEMENTED")
 
+        # Should take a picture with camera
+        img = None
 
-    def drawBlobPoints(self, boardImg, color):
-        boardsWithKeypoints = []
+        corners = self.get_blob_points(img, "pink")
+        while len(corners) != 4:
+            self.next("pink")
+            corners = self.get_blob_points(img, "pink")
+        self.save("pink")
 
-        for keyPoints in keyPointsList:
-            boardsWithKeypoints.append(cv.drawKeypoints(boardImg, keyPoints, np.array([]), (0,0,0), cv.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS))
-            points = []
-
-        cv.imshow(f'keypoints of color {color}',boardsWithKeypoints[color])
-
-    def getOccupiedPoints(self, img, color):
-        blobPoints = self.getBlobPoints(img, color)
-        print(blobPoints)
-        print("Not implemented")
         pass
 
     def find_chessboard(self, frame):
@@ -64,13 +87,29 @@ class ComputerVision:
                cv.findChessboardCorners(frame, (7, 7), chessboard_flags)[0])
 
 
-def defaultColorBounds():
+def default_color_bounds():
     return {
         "white": [np.array([0,0,160]), np.array([255,25,255])],
         "pink" : [np.array([140,40,40]), np.array([169,255,255])],
     }
 
-def defaultBlobParameters():
+def constructor(color):
+    """
+    Creates a dictionary holding a param manager and a blob detector
+    for a given color
+
+    Arguments:
+        color -- color to create the parameter manager for
+                 "pink" or "white"
+    """
+    manager = ParamManager(color)
+
+    return {
+        "manager": manager,
+        "detector": cv.SimpleBlobDetector_create(manager.current())
+    }
+
+def default_blob_parameters():
     params = cv.SimpleBlobDetector_Params()
 
     params.minThreshold = 50
