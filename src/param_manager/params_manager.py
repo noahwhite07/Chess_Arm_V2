@@ -1,4 +1,4 @@
-import ParamSwitcher from 'param_switcher'
+from param_manager.param_switcher import ParamSwitcher
 
 class ParamManager:
     def __init__(self):
@@ -8,7 +8,7 @@ class ParamManager:
         """
         Get current set of parameters from switcher
         """
-        return self.switcher.current_detector()
+        return self.switcher.current
 
     def next(self, info):
         """
@@ -19,7 +19,7 @@ class ParamManager:
             info -- error information from blob detection to better compute
                     next set of parameters (unused for now). schema TBD
         """
-        return self.switcher.next_detector(info)
+        return self.switcher.next(info)
 
     def save(self):
         """
@@ -31,5 +31,8 @@ class ParamManager:
                     next set of parameters (unused for now). schema TBD
         """
         self.switcher.save()
+        
+    def colorInfo(self, key):
+    	return self.switcher.colorInfo[key]
 
     # Need to fit in API here

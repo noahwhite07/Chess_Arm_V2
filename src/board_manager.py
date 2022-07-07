@@ -4,7 +4,7 @@ from computer_vision import ComputerVision
 class BoardManager:
   def __init__(self):
     self.cv     = ComputerVision()
-    self.cv.initialize()
+    # self.cv.initialize()
     state       = self.cv.get_occupied_squares()
     self.states = [state, state]
     self.states = [['a2','a3','c3'], ['a2','a3','b4']]

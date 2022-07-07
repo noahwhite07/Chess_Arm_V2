@@ -1,9 +1,8 @@
 import cv2 as cv
-import cv2.SimpleBlobDetector_create as
+# import cv2.SimpleBlobDetector_create
 import numpy as np
-
-#incredibly lazy global variable for testing
-from 'param_manager/param_manager' import ParamManager
+from param_manager.params_manager import ParamManager
+from param_manager.params import Params
 
 class ComputerVision:
     def __init__(self):
@@ -20,7 +19,7 @@ class ComputerVision:
                      "pink" or "white"
         """
         c = self.colors[color]
-        c.detector = cv.SimpleBlobDetector_create(c.manager.next())
+        c["detector"] = cv.SimpleBlobDetector_create(c["manager"].next(""))
 
     def save(self, color):
         """
@@ -30,11 +29,12 @@ class ComputerVision:
             color -- color to save the parameters for
                      "pink" or "white"
         """
-        self.colors[color].manager.save()
+        self.colors[color]["manager"].save()
 
     def get_blob_points(self, img, color):
-        manager = self.colors[color].manager
-        bounds  = manager.bounds()
+        print(self.colors)
+        manager = self.colors[color]["manager"]
+        bounds  = manager.colorInfo("bounds")
 
         boardHSV = cv.cvtColor(img, cv.COLOR_BGR2HSV)
 
@@ -52,7 +52,7 @@ class ComputerVision:
         threshold, blobImage = cv.threshold(gray, 55, 255, cv.THRESH_BINARY_INV)
 
         # A list to hold the key points given by detector.detect()
-        keyPoints = self.colors[color].detector.detect(blobImage)
+        keyPoints = self.colors[color]["detector"].detect(blobImage)
 
         points = [[kp.pt[0], kp.pt[1]] for kp in keyPoints]
 
@@ -70,7 +70,8 @@ class ComputerVision:
         print("NOT IMPLEMENTED")
 
         # Should take a picture with camera
-        img = None
+        # img = None
+        img = cv.imread("test/test_image.png")
 
         corners = self.get_blob_points(img, "pink")
         while len(corners) != 4:
@@ -102,29 +103,12 @@ def constructor(color):
         color -- color to create the parameter manager for
                  "pink" or "white"
     """
-    manager = ParamManager(color)
-
+    manager = ParamManager()
+    
     return {
         "manager": manager,
         "detector": cv.SimpleBlobDetector_create(manager.current())
     }
-
-def default_blob_parameters():
-    params = cv.SimpleBlobDetector_Params()
-
-    params.minThreshold = 50
-    params.maxThreshold = 200
-    params.filterByArea = True
-    params.minArea = 10
-    params.filterByCircularity = False
-    params.minCircularity = 0.1
-    params.filterByConvexity = False
-    params.minConvexity = 0.87
-    params.filterByInertia = False
-    params.minInertiaRatio = 0.01
-
-    return params
-
 
 def show(img):
     cv.imshow("test", blobPost)
