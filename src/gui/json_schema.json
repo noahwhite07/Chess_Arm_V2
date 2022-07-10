@@ -1,0 +1,28 @@
+{
+    "area": [
+        true,
+        0
+    ],
+    "circularity":[
+        true,
+        0
+    ],
+    "convexivity":[
+        true,
+        0
+    ],
+    "inertia":[
+        true,
+        0
+    ],
+    "colorBounds":{
+        "corner": [
+            [0,0,0],
+            [179, 255, 255]
+        ],
+        "piece": [
+            [0,0,0],
+            [179, 255, 255]
+        ]
+    }
+}
