@@ -25,8 +25,13 @@ window.rowconfigure(6, weight=1)
 window.columnconfigure(0, weight=3)
 window.columnconfigure(1, weight=2)
 
+
+#window.columnconfigure(0, weight=1)
+
+
+
 # Blob detector params
-area = IntVar(value = 50)
+area = IntVar(value = 100)
 areaBool = BooleanVar(value = False)
 
 circularity = DoubleVar(value = .80)
@@ -123,18 +128,22 @@ def onAreaChange(val): area.set(val)
 def onAreaToggle(): areaBool.set( areaBool.get())
 
 def onCircChange(val): circularity.set(val)
-def onCircToggle(): circularityBool.set(circularityBool.get())
+ 
+def onCircToggle(): circularityBool.set(not circularityBool.get())
     
-def onConvChange(val): convexivity.set(val)  
-def onConvToggle(): convexivityBool.set(convexivityBool.get())
+
+def onConvChange(val): convexivity.set(val)
     
-def onInertChange(val):inertia.set(val)  
-def onInertToggle():inertiaBool.set(inertiaBool.get())
+def onConvToggle(): convexivityBool.set(not convexivityBool.get())
+    
+
+def onInertChange(val):inertia.set(val)
+    
+def onInertToggle():inertiaBool.set(not inertiaBool.get())
     
 
 # Create a new blob detector with given params
 def updateParams(val = -1):
-    # This function will eventually be necessary
     pass
 
 def onColorRangeChange(event, widget, hi_low, param):
@@ -240,7 +249,7 @@ def newColorRangeFrame(label, hi_lo, boxFuncs = -1, boxVars = -1):
 
 
 # Create a frame with a label, checkbutton, and slider with specified event-handler functions
-def newParamControlFrame(label, min, max, buttonFunc, sliderFunc, buttonVar, sliderVar):
+def newParamControlFrame(label, min, max, buttonFunc, sliderFunc):
     
     # Contianer for the label, toggle, and slider
     frame = Frame(master = window)
@@ -252,13 +261,14 @@ def newParamControlFrame(label, min, max, buttonFunc, sliderFunc, buttonVar, sli
     # Create new checkbutton with given function and variable
     cb = Checkbutton(
         master = frame, 
-        variable = buttonVar,
+        variable = BooleanVar(),
         command = buttonFunc
     )
 
     # Add the button to the right of the label
     cb.pack(side=LEFT, pady = (17,0))
 
+    sliderVar = IntVar()
     # Create new slider with given function and variable
     paramSlider = Scale(
         frame,
@@ -266,7 +276,7 @@ def newParamControlFrame(label, min, max, buttonFunc, sliderFunc, buttonVar, sli
         to_= max,
         orient='horizontal',
         length = 200,
-        variable = sliderVar,
+        #variable = sliderVar,
         command = sliderFunc,
         
     )
@@ -298,6 +308,10 @@ def buildControlPanel():
 
     colorFrame2 = newColorRangeFrame("HSV High Bound", hi_lo=1)
     colorFrame2.grid(column= 0, row=5, sticky= "W")
+
+
+
+#labels = ["Area", "Circularity", "Convexivity", "Inertia"]
 
 # Add all the frames to the window
 buildControlPanel()
