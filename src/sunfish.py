@@ -419,7 +419,8 @@ def start(game):
         move = None
         while move not in hist[-1].gen_moves():
             # this is so shittily made and documented, but this recieves the move from gen_move
-            match = re.match('([a-h][1-8])'*2, game.sendToEngine())####################################################################################
+            match = re.match('([a-h][1-8])'*2, game.send_to_engine())
+            ####################################################################################
             if match:
                 move = parse(match.group(1)), parse(match.group(2))
             else:
@@ -449,4 +450,4 @@ def start(game):
         hist.append(hist[-1].move(move))
 
         ##sends the move to the gen_move program.
-        game.receiveFromEngine(render(119-move[0]) + render(119-move[1]))
+        game.receive_from_engine(render(119-move[0]) + render(119-move[1]))

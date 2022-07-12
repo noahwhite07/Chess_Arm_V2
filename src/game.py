@@ -5,10 +5,9 @@ class Game:
   def __init__(self):
     self.manager = BoardManager()
 
-  def sendToEngine(self):
-    self.manager.getNewState()
+  def send_to_engine(self):
     return self.manager.getMove()
 
-  def receiveFromEngine(self, move):
+  def receive_from_engine(self, move):
     arm_manager.do(move)
     pass
