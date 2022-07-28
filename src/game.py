@@ -3,11 +3,13 @@ import arm_manager
 
 class Game:
   def __init__(self):
-    self.manager = BoardManager()
+    # self.manager = BoardManager()
+    pass
 
-  def send_to_engine(self):
-    return self.manager.getMove()
+  def getMove(self):
+    # return self.manager.getMove()
+    return input("Your move")
 
-  def receive_from_engine(self, move):
+  def play(self, move):
     arm_manager.do(move)
     pass

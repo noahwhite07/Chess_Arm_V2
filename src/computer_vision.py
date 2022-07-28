@@ -73,12 +73,20 @@ class ComputerVision:
         # img = None
         img = cv.imread("test/test_image.png")
 
+        # find image corners
         corners = self.get_blob_points(img, "pink")
         while len(corners) != 4:
             self.next("pink")
             corners = self.get_blob_points(img, "pink")
         self.save("pink")
 
+        # transform image
+
+        # get square cutouts
+        h, w, _ = img.shape
+        squares = [[img[y:y+h/8, x:x+w/8] for y in range(8) ] for x in range(8)]
+        show(squares[0][0])
+        # print(squares)
         pass
 
     def find_chessboard(self, frame):
@@ -104,13 +112,13 @@ def constructor(color):
                  "pink" or "white"
     """
     manager = ParamManager()
-    
+
     return {
         "manager": manager,
         "detector": cv.SimpleBlobDetector_create(manager.current())
     }
 
 def show(img):
-    cv.imshow("test", blobPost)
+    cv.imshow("test", img)
     cv.waitKey(0)
     cv.destroyAllWindows()
