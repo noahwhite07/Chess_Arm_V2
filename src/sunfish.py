@@ -421,7 +421,7 @@ def start(to_engine, from_engine):
             match = re.match('([a-h][1-8])'*2, to_engine.get())
             if match:
                 move = parse(match.group(1)), parse(match.group(2))
-                print(move)
+                # print(move)
             else:
                 # Inform the user when invalid input (e.g. "help") is entered
                 print("Please enter a move like g8f6")
@@ -446,5 +446,5 @@ def start(to_engine, from_engine):
         # The black player moves from a rotated position, so we have to
         # 'back rotate' the move before printing it.
         #print("My move:", render(119-move[0]) + render(119-move[1]))
-        from_engine.put(move)
+        from_engine.put(render(119-move[0]) + render(119-move[1]))
         hist.append(hist[-1].move(move))

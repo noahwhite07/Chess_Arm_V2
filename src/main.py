@@ -22,5 +22,4 @@ while sunfish.is_alive():
     # get black's move
     toPlay = from_engine.get()
     # feed it to the arm
-    print(toPlay)
     game.play(toPlay)
