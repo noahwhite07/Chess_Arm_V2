@@ -79,14 +79,6 @@ class ComputerVision:
             self.next("pink")
             corners = self.get_blob_points(img, "pink")
         self.save("pink")
-
-        # transform image
-
-        # get square cutouts
-        h, w, _ = img.shape
-        squares = [[img[y:y+h/8, x:x+w/8] for y in range(8) ] for x in range(8)]
-        show(squares[0][0])
-        # print(squares)
         pass
 
     def find_chessboard(self, frame):
