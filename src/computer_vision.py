@@ -73,12 +73,12 @@ class ComputerVision:
         # img = None
         img = cv.imread("test/test_image.png")
 
+        # find image corners
         corners = self.get_blob_points(img, "pink")
         while len(corners) != 4:
             self.next("pink")
             corners = self.get_blob_points(img, "pink")
         self.save("pink")
-
         pass
 
     def find_chessboard(self, frame):
@@ -104,13 +104,13 @@ def constructor(color):
                  "pink" or "white"
     """
     manager = ParamManager()
-    
+
     return {
         "manager": manager,
         "detector": cv.SimpleBlobDetector_create(manager.current())
     }
 
 def show(img):
-    cv.imshow("test", blobPost)
+    cv.imshow("test", img)
     cv.waitKey(0)
     cv.destroyAllWindows()
